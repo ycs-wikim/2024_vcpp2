@@ -129,11 +129,13 @@
   <ItemGroup>
     <ClInclude Include="1028.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="new.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="1028.cpp" />
+    <ClCompile Include="new.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="1028.rc" />
