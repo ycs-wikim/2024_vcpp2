@@ -17,9 +17,11 @@ DWORD WINAPI thread_cs(LPVOID param)
         /// 3. 임계영역 진입
         EnterCriticalSection(&g_cs);
         ///////////////////////////// 임계 영역 시작
+        /*
         g_x = x;
         MoveToEx(hdc, g_x, 0, NULL);
         LineTo(hdc, g_x, i);
+        */
         /// 4. 임계영역 해제
         LeaveCriticalSection(&g_cs);
         ///////////////////////////// 임계 영역 종료

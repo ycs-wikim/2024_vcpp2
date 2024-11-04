@@ -4,7 +4,7 @@
 #include "framework.h"
 #include "1028.h"
 
-#include "new.h"
+//#include "new.h"
 
 #define MAX_LOADSTRING 100
 

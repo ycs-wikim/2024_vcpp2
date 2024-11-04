@@ -1,8 +1,8 @@
-﻿// 1021.cpp : 애플리케이션에 대한 진입점을 정의합니다.
+﻿// 1104.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 //
 
 #include "framework.h"
-#include "1021.h"
+#include "1104.h"
 
 #define MAX_LOADSTRING 100
 
@@ -29,7 +29,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     // 전역 문자열을 초기화합니다.
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_MY1021, szWindowClass, MAX_LOADSTRING);
+    LoadStringW(hInstance, IDC_MY1104, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
 
     // 애플리케이션 초기화를 수행합니다:
@@ -38,7 +38,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
     }
 
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_MY1021));
+    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_MY1104));
 
     MSG msg;
 
@@ -73,10 +73,10 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hInstance;
-    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_MY1021));
+    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_MY1104));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_MY1021);
+    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_MY1104);
     wcex.lpszClassName  = szWindowClass;
     wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
@@ -122,105 +122,83 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 //
 
-/// 스레드를 제어하기 위한 핸들 자료형
-HANDLE g_handle[5];
+PROCESS_INFORMATION g_pi;
+STARTUPINFO g_si;
 
-int g_x, g_i;
-
-/// hWnd를 스레드의 인수로 받는 경우
-LPARAM g_lParam;
-
-DWORD WINAPI pig(LPVOID param)
-//void draw(LPARAM lParam, HWND hWnd)
-{
-    int x, y, i = 0;
-    HWND hWnd = (HWND)param;
-
-    x = LOWORD(g_lParam);
-    y = HIWORD(g_lParam);
-
-    HDC hdc = GetDC(hWnd);
-
-    for (i = 0; i < y; i++)
-    {
-        MoveToEx(hdc, x, 0, NULL);
-        LineTo(hdc, x, i);
-        Sleep(20);
-    }
-
-    ReleaseDC(hWnd, hdc);
-
-    return 0;
-}
-
-
-/// lParam을 스레드 인수로 받는 경우
 HWND g_hWnd;
-
-DWORD WINAPI pig2(LPVOID lParam)
-//void draw(LPARAM lParam, HWND hWnd)
+DWORD WINAPI pig(LPVOID param)
 {
-    int x, y, i = 0;
+    wchar_t buf[128] = { 0, };
 
-    x = LOWORD(lParam);
-    y = HIWORD(lParam);
+    LPARAM lParam = (LPARAM)param;
+    int x = LOWORD(lParam);
+    int y = HIWORD(lParam);
+    int i = 0;
 
     HDC hdc = GetDC(g_hWnd);
 
     for (i = 0; i < y; i++)
     {
-        MoveToEx(hdc, g_x, 0, NULL);
-        LineTo(hdc, g_x, i);
-        Sleep(20);
+        MoveToEx(hdc, x, 0, NULL);
+        LineTo(hdc, x, i);
+
+        wsprintf(buf, L"x: %d  y: %d", x, i);
+        TextOut(hdc, x, i, buf, lstrlenW(buf));
+
+        Sleep(30);
     }
 
     ReleaseDC(g_hWnd, hdc);
-
+    ExitThread(0);
     return 0;
 }
 
+WCHAR g_buf[128];
+WCHAR g_child[128];
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
-    case WM_LBUTTONDOWN:
-    {
-        //draw(lParam, hWnd);
-        /// hWnd를 인수로 전달하는 경우
-        g_lParam = lParam;
-        //CreateThread(NULL, 0, pig, hWnd, 0, NULL);
-
-        /// lParam을 인수로 전달하는 경우
-        g_hWnd = hWnd;
-        g_handle[g_i++] = CreateThread(NULL, 0, pig2, (LPVOID)lParam, 0, NULL);
-        CreateThread(NULL, 0, pig2, (LPVOID)lParam, 0, NULL);
-        CreateThread(NULL, 0, pig2, (LPVOID)lParam, 0, NULL);
-        CreateThread(NULL, 0, pig2, (LPVOID)lParam, 0, NULL);
-        CreateThread(NULL, 0, pig2, (LPVOID)lParam, 0, NULL);
-        CreateThread(NULL, 0, pig2, (LPVOID)lParam, 0, NULL);
-        CreateThread(NULL, 0, pig2, (LPVOID)lParam, 0, NULL);
-        CreateThread(NULL, 0, pig2, (LPVOID)lParam, 0, NULL);
-        CreateThread(NULL, 0, pig2, (LPVOID)lParam, 0, NULL);
-        CreateThread(NULL, 0, pig2, (LPVOID)lParam, 0, NULL);
-    }
+    case WM_CREATE:
+        wsprintf(g_buf, L"My PID[ %d ] TID[ %d ]", 
+            GetCurrentProcessId(), GetCurrentThreadId());
+        GetCurrentProcess();
+        GetCurrentThread();
         break;
 
+    /// 생성한 프로세스 제어
     case WM_RBUTTONDOWN:
     {
-        int i = 0;
-        /// Thread 일시 정지
-        for(i = 0; i < 5; i++)
-            SuspendThread(g_handle[i]);
+        /// 생성한 프로세스를 강제 종료
+        //TerminateProcess(g_pi.hProcess, 0);
+        /// 생성한 프로세스의 베이스 스레드를 일시 중단
+        SuspendThread(g_pi.hThread);
     }
         break;
 
+    /// 프로세스의 스레드 제어
     case WM_KEYDOWN:
     {
-        int i = 0;
-        /// Thread 작업 재개
-        for(i = 0; i < 5; i++)
-            ResumeThread(g_handle[i]);
+        /// 생성한 프로세스의 베이스 스레드의 작업 재개
+        //ResumeThread(g_pi.hThread);
+        /// 외부에서 스레드를 강제 종료시키는 기능
+        /// 문제점 : 자원 정리 없이 종료되므로 다양한 문제 발생!!!
+        TerminateThread(g_pi.hThread, 0);
+    }
+        break;
+
+    /// 프로세스 생성
+    case WM_LBUTTONDOWN:
+    {
+            /*
+        g_hWnd = hWnd;
+        CreateThread(NULL, 0, pig, (LPVOID)lParam, 0, NULL);
+        */
+        //wchar_t processName[] = L"notepad.exe d:\\eula.txt";
+        wchar_t processName[] = L"1104.exe";
+        CreateProcess(NULL, processName, NULL, NULL, FALSE, 0, NULL, NULL, &g_si, &g_pi);
+        wsprintf(g_child, L"child PID[ %d ] TID[ %d ]", g_pi.dwProcessId, g_pi.dwThreadId);
     }
         break;
 
@@ -246,6 +224,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
+            TextOut(hdc, 10, 10, g_buf, lstrlenW(g_buf));
+            TextOut(hdc, 10, 100, g_child, lstrlenW(g_child));
             EndPaint(hWnd, &ps);
         }
         break;
